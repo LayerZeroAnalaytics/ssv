@@ -153,7 +153,9 @@ func (v1 *AbiV1) ParseValidatorAddedEvent(log types.Log, contractAbi abi.ABI) (*
 
 	if sharesExpectedLength != len(event.Shares) {
 		return nil, &MalformedEventError{
-			Err: errors.Errorf("%s event shares length is not correct", ValidatorAdded),
+			Err: errors.Errorf("%s event shares length is not correct. Expected length: %d, "+
+				"Received length: %d, Operators length: %d, Whole event: %+v",
+				ValidatorAdded, sharesExpectedLength, len(event.Shares), len(event.OperatorIds), event),
 		}
 	}
 
