@@ -18,7 +18,6 @@ import (
 	"github.com/bloxapp/ssv/network/streams"
 	"github.com/bloxapp/ssv/network/topics"
 	"github.com/bloxapp/ssv/utils/commons"
-	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	libp2pdiscbackoff "github.com/libp2p/go-libp2p/p2p/discovery/backoff"
 	basichost "github.com/libp2p/go-libp2p/p2p/host/basic"
@@ -58,7 +57,7 @@ func (n *p2pNetwork) Setup(logger *zap.Logger) error {
 	rand.Seed(time.Now().UnixNano()) // nolint: staticcheck
 	logger.Info("configuring")
 
-	n.initCfg()
+	n.initCfg(logger)
 
 	err := n.SetupHost(logger)
 	if err != nil {
@@ -77,7 +76,8 @@ func (n *p2pNetwork) Setup(logger *zap.Logger) error {
 	return nil
 }
 
-func (n *p2pNetwork) initCfg() {
+func (n *p2pNetwork) initCfg(logger *zap.Logger) {
+	logger.Info("Initializing config", zap.Any("config", n.cfg))
 	if n.cfg.RequestTimeout == 0 {
 		n.cfg.RequestTimeout = defaultReqTimeout
 	}
@@ -85,12 +85,16 @@ func (n *p2pNetwork) initCfg() {
 		n.cfg.UserAgent = userAgent(n.cfg.UserAgent)
 	}
 	if len(n.cfg.Subnets) > 0 {
+		logger.Info("Subnets config found", zap.String("subnets", n.cfg.Subnets))
 		s := make(records.Subnets, 0)
 		subnets, err := s.FromString(strings.Replace(n.cfg.Subnets, "0x", "", 1))
 		if err != nil {
 			// TODO: handle
+			logger.Error("Error parsing subnets", zap.Error(err))
 			return
 		}
+
+		logger.Info("Parsed subnets", zap.Any("parsedSubnets", subnets))
 		n.subnets = subnets
 	}
 	if n.cfg.MaxPeers <= 0 {
