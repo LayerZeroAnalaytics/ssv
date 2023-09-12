@@ -126,12 +126,15 @@ func (h *handshaker) Handler(logger *zap.Logger) libp2pnetwork.StreamHandler {
 				logger.Warn("could not process node info", zap.Error(err))
 			}
 		}()
-
+		logger.Debug("About to seal self node info")
 		self, err := h.nodeInfoIdx.SelfSealed()
+		logger.Debug("Self node info sealed.", zap.ByteString("self", self), zap.Error(err))
+
 		if err != nil {
 			logger.Warn("could not seal self node info", zap.Error(err))
 			return
 		}
+		logger.Debug("About to send self node info.")
 		if err := res(self); err != nil {
 			logger.Warn("could not send self node info", zap.Error(err))
 			return
