@@ -296,7 +296,7 @@ func (r *SyncCommitteeAggregatorRunner) generateContributionAndProof(contrib alt
 	dContribAndProof, err := r.GetBeaconNode().DomainData(epoch, spectypes.DomainContributionAndProof)
 
 	logger.Info("Information about dContribAndProof",
-		zap.Any("Domain", dContribAndProof.Domain),
+		zap.Any("Domain", dContribAndProof),
 	)
 
 	if err != nil {
