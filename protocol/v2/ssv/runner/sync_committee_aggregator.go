@@ -270,14 +270,35 @@ func (r *SyncCommitteeAggregatorRunner) ProcessPostConsensus(logger *zap.Logger,
 }
 
 func (r *SyncCommitteeAggregatorRunner) generateContributionAndProof(contrib altair.SyncCommitteeContribution, proof phase0.BLSSignature) (*altair.ContributionAndProof, phase0.Root, error) {
+	// Create a new logger instance
+	logger, err := zap.NewProduction()
+	if err != nil {
+		return nil, phase0.Root{}, err
+	}
+
+	// Use the logger
+	logger.Info("Starting to generate contribution and proof")
+
 	contribAndProof := &altair.ContributionAndProof{
 		AggregatorIndex: r.GetState().DecidedValue.Duty.ValidatorIndex,
 		Contribution:    &contrib,
 		SelectionProof:  proof,
 	}
 
+	// Log information about contribAndProof
+	logger.Info("Information about contribAndProof",
+		zap.Any("AggregatorIndex", contribAndProof.AggregatorIndex),
+		zap.Any("Contribution", contribAndProof.Contribution),
+		zap.Any("SelectionProof", contribAndProof.SelectionProof),
+	)
+
 	epoch := r.BaseRunner.BeaconNetwork.EstimatedEpochAtSlot(r.GetState().DecidedValue.Duty.Slot)
 	dContribAndProof, err := r.GetBeaconNode().DomainData(epoch, spectypes.DomainContributionAndProof)
+
+	logger.Info("Information about dContribAndProof",
+		zap.Any("Domain", dContribAndProof.Domain),
+	)
+
 	if err != nil {
 		return nil, phase0.Root{}, errors.Wrap(err, "could not get domain data")
 	}
