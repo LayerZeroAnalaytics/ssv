@@ -87,6 +87,8 @@ func (rc *recipientController) listenToTicker(logger *zap.Logger, slots chan pha
 			continue
 		}
 
+		logger.Debug("Shares len", zap.Int32("sharesLen", int32(len(shares))));
+
 		var g multierror.Group
 		const batchSize = 500
 		var counter int32
@@ -96,6 +98,8 @@ func (rc *recipientController) listenToTicker(logger *zap.Logger, slots chan pha
 				end = len(shares)
 			}
 			batch := shares[start:end]
+
+			logger.Debug("Batch len", zap.Int32("batchLen", int32(len(batch))));
 
 			g.Go(func() error {
 				m, err := rc.toProposalPreparation(logger, batch)
